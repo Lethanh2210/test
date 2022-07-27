@@ -28,9 +28,10 @@ class Blog {
     };
 
     // lấy ra 1 blog
-    getBlog(id) {
+    getBlog(ID) {
+        console.log(ID)
         return new Promise((resolve, rejects) => {
-            this.connection.query(`select * from blogs where blogs.id=${id}`, (err, data) => {
+            this.connection.query(`select * from blogs where id=${ID}`, (err, data) => {
                 if (err) {
                     rejects(err);
                 } else {
@@ -41,7 +42,7 @@ class Blog {
     };
 
     // tìm kiếm 1 blog theo tên
-    getblogWithTitle(title) {
+    getBlogWithTitle(title) {
         return new Promise((resolve, rejects) => {
             this.connection.query(`select * from blogs where blogs.title=${title}`, (err, data) => {
                 if (err) {
@@ -82,6 +83,20 @@ class Blog {
             })
         }))
     }
+
+    getBlogWithCategory(category) {
+        console.log(category);
+        return new Promise((resolve, rejects) => {
+            this.connection.query(`SELECT * from blogs join categories on categories.id = blogs.category_id where categories.name = '${category}'`,
+                                (err, data) => {
+                if (err) {
+                    rejects(err);
+                } else {
+                    resolve(data);
+                }
+            })
+        })
+    };
 
     // xoa blog
     deleteBlog(id){

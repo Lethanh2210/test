@@ -40,12 +40,12 @@ class HomeUserController {
                     <td>${i + 1}</td>
                     <td>${blogs[i].title}</td>
                     <td>${blogs[i].author}</td>
-                    <td><a href="/homeUser/blogs/blog?id_user=${id_user}&id_blog=${blogs[i].id}>View</a></td>
+                    <td><a href="/homeUser/blogs/blog?id_user=${id_user}&idBlog=${blogs[i].id}">View</a></td>
                 </tr>`;
                 }
                 data = data.replaceAll('{id}', id_user);
                 data = data.replace('{blog}', table);
-                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.writeHead(200, {'Content-Type': 'text/html'})
                 res.write(data);
                 return res.end();
             }
@@ -54,20 +54,21 @@ class HomeUserController {
 
     // xem chi tiết 1 blog
     viewABlog(req, res, idBlog) {
-        fs.readFile('./views/home_user/home_user.html', 'utf-8', async (err, data) => {
+        fs.readFile('./views/home_user/blogDetail.html', 'utf-8', async (err, data) => {
             if (err) {
                 console.log(err);
             } else {
                 let blog = await this.blog.getBlog(idBlog);
-                let data = `<ol>
-                <li>${blog.title}</li>
-                <li>${blog.author}</li>
-                <li>${blog.time_create}</li>
-                <li>${blog.time_update}</li>
-                <li>${blog.content}</li>
-            </ol>`;
-                data = data.replaceAll('{id}', id_user);
-                data = data.replace('{blog}', data);
+
+                let blogDetail = `<ul>
+                <li>time-create: ${blog[0].time_create}</li>
+                <li>time-update: ${blog[0].time_update}</li>
+                <li>content: ${blog[0].content}</li>
+            </ul>`;
+                // data = data.replaceAll('{id}', id_user);
+                data = data.replace('{body}', blogDetail);
+                data = data.replace('{title}', blog[0].title);
+                data = data.replace('{author}', blog[0].author);
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.write(data);
                 return res.end();
@@ -112,7 +113,7 @@ class HomeUserController {
             let buffer = [];
 
             for await (const chunk of req) {
-                buffer.push(chunk)
+                buffer.push(chunk);
             }
             const data = Buffer.concat(buffer).toString()
             const dataSearch = (qs.parse(data)).name;
@@ -139,7 +140,30 @@ class HomeUserController {
 
 
     // tìm kiếm theo danh mục
-    findWithCategory() {
+    findWithCategory(req,res,category) {
+        this.blog.getBlogWithCategory(category).then((blogs) => {
+            console.log(blogs)
+            fs.readFile('./views/home_user/home_user.html', 'utf-8', (err, data) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    let table = ``;
+                    for (let i = 0; i < blogs.length; i++) {
+                        table += `
+                    <tr>
+                    <td>${i + 1}</td>
+                    <td>${blogs[i].title}</td>
+                    <td>${blogs[i].author}</td>
+                    <td><a href="/homeUser/blogs/blog?idBlog=${blogs[i].id}">View</a></td>
+                </tr>`;
+                    }
+                    data = data.replace('{blog}', table);
+                    res.writeHead(200, {'Content-Type': 'text/html'})
+                    res.write(data);
+                    return res.end();
+                }
+            })
+        })
 
     }
 
